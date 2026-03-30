@@ -4,18 +4,18 @@ A fun, interactive organizational chart visualizing the hierarchy of the Dunder 
 
 ## Description
 
-While on the surface this is a fun project to explore the dynamics of the Scranton branch (ever wondered who reports to the Regional Manager or who's in the Finance department?), under the hood, it is a **multi-component, data-driven application**. 
+While on the surface this is a fun project to explore the dynamics of the Scranton branch, under the hood, it is a **multi-component, data-driven application**. 
 
 This project serves as a showcase of modern backend engineering, database management, and interactive web visualization using a robust Python stack. It demonstrates how to manage hierarchical data, securely handle database sessions, and containerize full-stack applications.
 
 ## Technical Highlights & Architecture
 
-This project highlights experience across several key technologies and concepts:
+This project aims to highlight experience across several key technologies and concepts:
 
 *   **Object-Relational Mapping (ORM)**: Uses **SQLAlchemy** to define hierarchical data models (`SQLEmployee`, `SQLManager`, `SQLExecutive`), handle complex queries (e.g., recursive dependencies and `UNION`s), and manage secure, reusable database sessions.
 *   **Database Management**: Powered by **PostgreSQL** to robustly store and query the corporate reporting structure.
 *   **Containerization**: Fully containerized using **Docker** (and Docker Compose) to seamlessly orchestrate the web application and the PostgreSQL database environments.
-*   **Graph Theory & Traversal**: Leverages **NetworkX** to dynamically build directed graphs (`DiGraph`) from SQL queries, enabling complex organizational traversals and visual node mapping.
+*   **Graph Theory & Traversal**: Leverages **NetworkX** to dynamically build directed graphs (`DiGraph`) from SQL queries, enabling organizational traversals and visual node mapping.
 *   **Interactive UI**: Built with **Streamlit** to create a responsive, multi-page data application without writing boilerplate HTML/JS.
 
 ## Features
