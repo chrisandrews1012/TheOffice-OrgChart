@@ -31,9 +31,9 @@ Follow these instructions to get a copy of the project up and running on your lo
 ### Prerequisites
 
 *   Docker and Docker Compose
-*   Python 3.10+ and [uv](https://docs.astral.sh/uv/) (if running locally without Docker)
+*   Python 3.10+ and [uv](https://docs.astral.sh/uv/)
 
-### Installation (Docker - Recommended)
+### Installation
 
 1.  Clone the repository:
     ```bash
@@ -46,44 +46,32 @@ Follow these instructions to get a copy of the project up and running on your lo
     ```
     You must then open the `.env` file and provide values for the following variables.
 
-    > **Note:** Since the Docker environment creates a new, self-contained database for you, you can use any values you wish for these credentials. They will be used to initialize the new database instance inside the container.
-
     *   `PG_USER`: The superuser for the PostgreSQL database.
     *   `PG_PASSWORD`: The password for the PostgreSQL superuser.
     *   `PG_DATABASE`: The name for the database to be created.
     *   `PG_PORT`: The external port to map to the PostgreSQL container's port 5432.
-    *   `DB_HOST`: The hostname of the database server.
+    *   `DB_HOST`: The hostname of the database server (`localhost`).
     *   `DB_USER`: The username for the non-superuser role that the application will use to connect.
     *   `DB_USER_PW`: The password for the application user.
-3.  Build and start the application and database services:
+
+3.  Start the PostgreSQL database container in the background:
     ```bash
-    docker-compose up --build
+    docker compose up -d
     ```
     
     > **Work in Progress:** The Docker Compose network setup is currently being fixed. For now, the application does not start automatically alongside the database.
-4.  In a separate terminal, manually start the application:
-    ```bash
-    uv run streamlit run app.py
-    ```
-5.  The application will open in your default browser at `http://localhost:8501`.
 
-### Local Development (Without Docker)
-
-1.  Ensure you have a local PostgreSQL instance running. Create your `.env` file by copying the template (`cp template.env .env`).
-
-    > **Important:** For this setup, you **must** update the `.env` file with the actual connection details for your existing local database instance. The application will use these values to connect to your server.
-2.  Install the dependencies using `uv`:
-    ```bash
-    uv sync
-    ```
-3.  Initialize the database:
+4.  In a separate terminal, manually populate the database by running the build script:
     ```bash
     uv run python build.py rebuild
     ```
-4.  Start the Streamlit development server:
+
+5.  Now, start the Streamlit web application:
     ```bash
     uv run streamlit run app.py
     ```
+
+6.  The application will open in your default browser at `http://localhost:8501`.
 
 ## License
 
