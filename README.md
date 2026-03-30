@@ -1,82 +1,115 @@
-# The Office - Organizational Chart
+# The Office — Organizational Chart
+
+## Overview
 
 A fun, interactive organizational chart visualizing the hierarchy of the Dunder Mifflin Scranton branch from the beloved TV show, "The Office".
 
-## Description
+## Technical Highlights
 
-While on the surface this is a fun project to explore the dynamics of the Scranton branch, under the hood, it is a **multi-component, data-driven application**. 
-
-This project serves as a showcase of modern backend engineering, database management, and interactive web visualization using a robust Python stack. It demonstrates how to manage hierarchical data, securely handle database sessions, and containerize full-stack applications.
-
-## Technical Highlights & Architecture
-
-This project aims to highlight experience across several key technologies and concepts:
-
-*   **Object-Relational Mapping (ORM)**: Uses **SQLAlchemy** to define hierarchical data models (`SQLEmployee`, `SQLManager`, `SQLExecutive`), handle complex queries (e.g., recursive dependencies and `UNION`s), and manage secure, reusable database sessions.
-*   **Database Management**: Powered by **PostgreSQL** to robustly store and query the corporate reporting structure.
-*   **Containerization**: Fully containerized using **Docker** (and Docker Compose) to orchestrate the web application and the PostgreSQL database environments seamlessly.
-*   **Graph Theory & Traversal**: Leverages **NetworkX** to dynamically build directed graphs (`DiGraph`) from SQL queries, enabling organizational traversals and visual node mapping.
-*   **Interactive UI**: Built with **Streamlit** to create a responsive, multi-page data application without writing boilerplate HTML/JS.
+- **SQLAlchemy (ORM)**: Models the employee hierarchy across three tiers — employees, managers, and executives. Handles complex queries and manages database sessions through custom context managers and decorators.
+- **Pydantic (Data Validation)**: All input is validated before it touches the database. This is the same pattern used in ML model serving to catch bad data at the boundary.
+- **PostgreSQL**: Stores and queries the organizational structure. The app connects through a scoped, non-superuser role following least-privilege principles.
+- **Docker and Docker Compose**: The app and database run as containerized services, making the environment consistent and easy to spin up.
+- **NetworkX (Graph Theory)**: Builds a directed graph from SQL query results to represent the reporting hierarchy — the same kind of structure used in dependency graphs and graph neural networks.
+- **Streamlit**: Powers the multi-page frontend without any HTML or JavaScript boilerplate.
 
 ## Features
 
-*   **Automated Data Pipeline**: Includes a build script (`build.py`) that uses SQLAlchemy bulk inserts to optimally clear and rebuild the database structure, properly respecting foreign key constraints.
-*   **Interactive Organizational Chart**: Explore the chain of command, viewing employees, managers, and executives via a Streamlit multi-page interface.
-*   **Robust Error Handling**: Features centralized database error handling, logging, and session management via custom Python decorators and context managers.
+- **Data Pipeline**: `build.py` includes a `rebuild` command that clears and reconstructs the database in the correct dependency order using bulk inserts.
+- **Interactive Org Chart**: Browse the full chain of command across all three tiers through a clean multi-page Streamlit interface.
+- **Error Handling**: Database errors, session rollbacks, and exception definitions are all centralized and managed consistently across the app.
+- **Tests**: Covers validation logic, ID generation, and UI components using pytest, pytest-mock, and pytest-cov.
+
+## Project Structure
+
+```
+theoffice-orgchart/
+├── app.py                    # Streamlit entry point
+├── build.py                  # Data pipeline
+├── docker-compose.yml        # Service orchestration
+├── pyproject.toml            # Dependencies (uv)
+├── config/                   # Environment and database configuration
+├── handler/
+│   └── cursor.py             # Session and cursor management
+├── models/
+│   └── orgchart.py           # SQLAlchemy ORM models
+├── pages/
+│   ├── Home.py               # Landing page
+│   └── ChainOfCommand.py     # Chain-of-command explorer
+├── utilities/
+│   ├── connection_helper.py  # Database connection factory
+│   ├── errors.py             # Exception definitions
+│   ├── graph_builder.py      # NetworkX graph construction
+│   ├── id_generator.py       # ID generation logic
+│   ├── session_helper.py     # Session context manager
+│   └── validation.py         # Pydantic input validation
+└── tests/
+    ├── conftest.py
+    ├── test_id_generator.py
+    ├── test_ui_components.py
+    └── test_validation.py
+```
 
 ## Getting Started
 
-Follow these instructions to get the project running on your local machine.
-
 ### Prerequisites
 
-*   Docker and Docker Compose
-*   Python 3.10+ and [uv](https://docs.astral.sh/uv/)
+- [Docker](https://www.docker.com/) and Docker Compose
+- Python 3.11+ and [uv](https://docs.astral.sh/uv/)
 
 ### Installation
 
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/your-username/the-office-org-chart.git
-    cd theoffice-orgchart
-    ```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/theoffice-orgchart.git
+   cd theoffice-orgchart
+   ```
+
 2. Sync the dependencies:
-    ```bash
-    uv sync
-    ```
-3.  Create a `.env` file in the project root directory to securely store your database configuration. This file is ignored by Git but is essential for the application to connect to the database. You can get started by copying the template:
-    ```bash
-    cp template.env .env
-    ```
-    You must then open the `.env` file and provide values for the following variables.
+   ```bash
+   uv sync
+   ```
 
-    *   `PG_USER`: The superuser for the PostgreSQL database.
-    *   `PG_PASSWORD`: The password for the PostgreSQL superuser.
-    *   `PG_DATABASE`: The name for the database to be created.
-    *   `PG_PORT`: The external port to map to the PostgreSQL container's port 5432.
-    *   `DB_HOST`: The hostname of the database server (`localhost`).
-    *   `DB_USER`: The username for the non-superuser role that the application will use to connect.
-    *   `DB_USER_PW`: The password for the application user.
+3. Copy the environment template and fill in your database credentials:
+   ```bash
+   cp template.env .env
+   ```
 
-4.  Start the PostgreSQL database container in the background:
-    ```bash
-    docker compose up -d
-    ```
-    
-    > **Work in Progress:** The Docker Compose network setup is currently being fixed. For now, the application does not start automatically alongside the database.
+   | Variable | Description |
+   |---|---|
+   | `PG_USER` | PostgreSQL superuser username |
+   | `PG_PASSWORD` | PostgreSQL superuser password |
+   | `PG_DATABASE` | Database name |
+   | `PG_PORT` | Host port mapped to container port `5432` |
+   | `DB_HOST` | Database hostname (typically `localhost`) |
+   | `DB_USER` | Application-level database role |
+   | `DB_USER_PW` | Password for the application role |
 
-5.  In a separate terminal, manually populate the database by running the build script:
-    ```bash
-    uv run python build.py rebuild
-    ```
+4. Start the database container:
+   ```bash
+   docker compose up -d
+   ```
 
-6.  Now, start the Streamlit web application:
-    ```bash
-    uv run streamlit run app.py
-    ```
+   > **Note:** The Docker Compose network setup is currently being refined. Start the Streamlit app manually in a separate terminal for now.
 
-7.  The application will open in your default browser at `http://localhost:8501`.
+5. In another terminal, run the build pipeline to initialize the database:
+   ```bash
+   uv run python build.py rebuild
+   ```
+
+6. Start the app:
+   ```bash
+   uv run streamlit run app.py
+   ```
+
+7. Visit `http://localhost:8501` in your browser.
+
+## Running Tests
+
+```bash
+uv run pytest tests/ -v --cov
+```
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE).
